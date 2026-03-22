@@ -33,7 +33,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
+            padding: 1rem;
             position: relative;
             overflow-x: hidden;
         }
@@ -178,6 +178,17 @@
         }
 
         select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 3rem 1rem 1rem;
+            /* Right padding for arrow, left 1rem since no icon */
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            outline: none;
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
@@ -254,12 +265,12 @@
         }
 
         .price-value.standard {
-            font-size: 2.2rem;
+            font-size: clamp(1.8rem, 5vw, 2.2rem);
             opacity: 0.8;
         }
 
         .price-value.uberone {
-            font-size: 3.2rem;
+            font-size: clamp(2.5rem, 8vw, 3.2rem);
             color: #FFD700;
             /* Gold for Uber One */
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
@@ -405,17 +416,33 @@
         }
 
         @media (max-width: 480px) {
-            .container {
-                padding: 1.5rem;
+            body {
+                padding: 0.5rem;
+                align-items: flex-start; /* Better for scrolling long cards on mobile */
             }
 
-            .result-value {
-                font-size: 3rem;
+            .container {
+                padding: 1.25rem;
+                border-radius: 16px;
+                margin: 0.5rem 0;
+            }
+
+            .price-value.uberone {
+                font-size: 2.8rem;
             }
 
             .row {
                 flex-direction: column;
                 gap: 0;
+            }
+
+            .btn-increment {
+                padding: 0.6rem 0; /* Larger touch target */
+            }
+
+            .driver-earnings {
+                width: 100%;
+                font-size: 1rem;
             }
         }
     </style>
@@ -428,13 +455,11 @@
 
     <div class="container">
         <h1>Uber 車資計算</h1>
-        <p class="subtitle">台灣地區・官方費率試算<br><small style="font-size: 0.8rem; opacity: 0.7;">(註：北北基尖峰時段每分鐘為 $3.7)</small>
-        </p>
+        <p class="subtitle">台灣地區・官方費率試算</p>
 
         <div class="input-group" style="margin-bottom: 1.5rem;">
             <label for="region">選擇地區</label>
             <div class="input-wrapper">
-                <span class="input-icon">🌍</span>
                 <select id="region">
                     <option value="taipei">北北基 (基本48, 每公里25, 每分鐘3.4)</option>
                     <option value="taoyuan">桃園 (基本59, 每公里25, 每分鐘1.7)</option>
@@ -449,7 +474,7 @@
                 <label for="distance">行駛距離 (公里)</label>
                 <div class="input-wrapper">
                     <span class="input-icon">📍</span>
-                    <input type="number" id="distance" placeholder="例如: 5.2" step="0.1" min="0">
+                    <input type="number" id="distance" placeholder="例如: 5.2" step="0.1" min="0" inputmode="decimal">
                 </div>
                 <div class="quick-btns">
                     <button type="button" class="btn-increment" data-target="distance" data-val="1">+1 km</button>
@@ -462,7 +487,7 @@
                 <label for="time">預估時間 (分鐘)</label>
                 <div class="input-wrapper">
                     <span class="input-icon">⏱️</span>
-                    <input type="number" id="time" placeholder="例如: 15" step="1" min="0">
+                    <input type="number" id="time" placeholder="例如: 15" step="1" min="0" inputmode="numeric">
                 </div>
                 <div class="quick-btns">
                     <button type="button" class="btn-increment" data-target="time" data-val="1">+1 min</button>
@@ -486,14 +511,14 @@
                     <label for="baseFare">基本車資 (元)</label>
                     <div class="input-wrapper">
                         <span class="input-icon">💵</span>
-                        <input type="number" id="baseFare" value="85" step="1">
+                        <input type="number" id="baseFare" value="85" step="1" inputmode="numeric">
                     </div>
                 </div>
                 <div class="input-group">
                     <label for="minFare">最低車資 (元)</label>
                     <div class="input-wrapper">
                         <span class="input-icon">🛡️</span>
-                        <input type="number" id="minFare" value="85" step="1">
+                        <input type="number" id="minFare" value="85" step="1" inputmode="numeric">
                     </div>
                 </div>
             </div>
@@ -503,14 +528,14 @@
                     <label for="perKm">每公里費率 (元)</label>
                     <div class="input-wrapper">
                         <span class="input-icon">🛣️</span>
-                        <input type="number" id="perKm" value="25" step="0.5">
+                        <input type="number" id="perKm" value="25" step="0.5" inputmode="decimal">
                     </div>
                 </div>
                 <div class="input-group">
                     <label for="perMin">每分鐘費率 (元)</label>
                     <div class="input-wrapper">
                         <span class="input-icon">⏳</span>
-                        <input type="number" id="perMin" value="2.5" step="0.1">
+                        <input type="number" id="perMin" value="2.5" step="0.1" inputmode="decimal">
                     </div>
                 </div>
             </div>
@@ -519,7 +544,7 @@
                 <label for="surge">動態加成 (例如 1.2倍)</label>
                 <div class="input-wrapper">
                     <span class="input-icon">⚡</span>
-                    <input type="number" id="surge" value="1.0" step="0.1" min="1.0">
+                    <input type="number" id="surge" value="1.0" step="0.1" min="1.0" inputmode="decimal">
                 </div>
             </div>
         </div>
