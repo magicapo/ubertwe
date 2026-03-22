@@ -76,6 +76,7 @@
             border: 1px solid var(--glass-border);
             border-radius: 24px;
             padding: 2.5rem;
+            margin-bottom: 250px; /* Space for floating cards */
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             animation: slideUp 0.6s ease-out;
         }
@@ -236,9 +237,13 @@
         /* dual price layout */
         .result-group {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: flex-end;
             gap: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
         }
 
         .price-item {
@@ -265,15 +270,14 @@
         }
 
         .price-value.standard {
-            font-size: clamp(1.8rem, 5vw, 2.2rem);
-            opacity: 0.8;
+            font-size: 1.4rem;
+            opacity: 0.9;
         }
 
         .price-value.uberone {
-            font-size: clamp(2.5rem, 8vw, 3.2rem);
+            font-size: 2.2rem;
             color: #FFD700;
-            /* Gold for Uber One */
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
 
         .price-value span {
@@ -284,29 +288,36 @@
         }
 
         .result-card {
-            background: linear-gradient(135deg, rgba(39, 110, 241, 0.2), rgba(39, 110, 241, 0.05));
-            border: 1px solid rgba(39, 110, 241, 0.3);
-            border-radius: 16px;
-            padding: 1.5rem;
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 2.5rem);
+            max-width: 480px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1rem 1.25rem;
             text-align: center;
-            margin-top: 1rem;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from { transform: translate(-50%, 150%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
         }
 
         .result-card:hover {
-            transform: translateY(-2px);
+            background: rgba(15, 23, 42, 0.9);
         }
 
         .result-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+            display: none;
         }
 
         .result-label {
@@ -322,24 +333,22 @@
         }
 
         .driver-earnings {
-            margin-top: 1.5rem;
-            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #10b981;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            display: inline-block;
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 0;
+            background: transparent;
+            border: none;
         }
 
         .details {
             display: flex;
-            justify-content: space-between;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--glass-border);
-            font-size: 0.85rem;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.25rem;
+            padding-top: 0.25rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
         }
 
@@ -418,7 +427,8 @@
         @media (max-width: 480px) {
             body {
                 padding: 0.5rem;
-                align-items: flex-start; /* Better for scrolling long cards on mobile */
+                align-items: flex-start;
+                padding-bottom: 180px; /* Reduced space */
             }
 
             .container {
@@ -427,8 +437,25 @@
                 margin: 0.5rem 0;
             }
 
+            .price-item {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .price-label {
+                font-size: 0.7rem;
+            }
+
             .price-value.uberone {
-                font-size: 2.8rem;
+                font-size: 1.8rem;
+            }
+
+            .price-value.standard {
+                font-size: 1.3rem;
             }
 
             .row {
@@ -437,12 +464,24 @@
             }
 
             .btn-increment {
-                padding: 0.6rem 0; /* Larger touch target */
+                padding: 0.6rem 0;
             }
 
             .driver-earnings {
                 width: 100%;
-                font-size: 1rem;
+                font-size: 0.95rem;
+                padding: 0.5rem;
+                margin-top: 0.5rem;
+            }
+            
+            .result-card {
+                padding: 1.25rem;
+                max-width: 100%;
+            }
+            
+            .details {
+                margin-top: 0.75rem;
+                padding-top: 0.75rem;
             }
         }
     </style>
@@ -562,35 +601,35 @@
             </div>
         </div>
 
-        <div class="result-card">
-            <div class="result-group">
-                <div class="price-item">
-                    <div class="price-label">一般預估車資</div>
-                    <div class="price-value standard">
-                        <span>NT$</span> <span id="totalFare">0</span>
-                    </div>
-                </div>
-                <div class="price-item">
-                    <div class="price-label">👑 Uber One 會員價 (95折)</div>
-                    <div class="price-value uberone">
-                        <span>NT$</span> <span id="uberOneFare">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="driver-earnings">
-                司機實拿 (扣除25%): NT$ <span id="driverFare">0</span>
-            </div>
-
-            <div class="details">
-                <span id="detailDistance">里程費: $0</span>
-                <span id="detailTime">時間費: $0</span>
-            </div>
-        </div>
-
         <button type="button" class="btn-reset" id="resetBtn">
             🔄 清除歸零
         </button>
+    </div>
+
+    <div class="result-card">
+        <div class="result-group">
+            <div class="price-item">
+                <div class="price-label">一般預估車資</div>
+                <div class="price-value standard">
+                    <span>NT$</span> <span id="totalFare">0</span>
+                </div>
+            </div>
+            <div class="price-item">
+                <div class="price-label">👑 Uber One 會員價 (95折)</div>
+                <div class="price-value uberone">
+                    <span>NT$</span> <span id="uberOneFare">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="driver-earnings">
+            司機實拿 (扣除25%): NT$ <span id="driverFare">0</span>
+        </div>
+
+        <div class="details">
+            <span id="detailDistance">里程費: $0</span>
+            <span id="detailTime">時間費: $0</span>
+        </div>
     </div>
 
     <script>
