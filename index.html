@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uber 台灣車資計算機</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #276EF1;
+            --accent: #FFFFFF;
+            --bg-grad-1: #0f172a;
+            --bg-grad-2: #1e293b;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background elements */
+        .bg-blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            border-radius: 50%;
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(39, 110, 241, 0.2);
+            top: -10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            background: rgba(147, 51, 234, 0.15);
+            bottom: -20%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 30px) scale(1.1); }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .input-group:focus-within label {
+            color: var(--secondary);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 1rem 1rem 3rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(39, 110, 241, 0.15);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: color 0.3s;
+        }
+
+        .input-group:focus-within .input-icon {
+            color: var(--secondary);
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        select option {
+            background-color: var(--bg-grad-2);
+            color: white;
+        }
+
+        .quick-btns {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-increment {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            padding: 0.4rem 0;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-increment:hover {
+            background: rgba(39, 110, 241, 0.2);
+            border-color: var(--secondary);
+            color: #fff;
+        }
+
+        .row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .row .input-group {
+            flex: 1;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--secondary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, rgba(39, 110, 241, 0.2), rgba(39, 110, 241, 0.05));
+            border: 1px solid rgba(39, 110, 241, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+        }
+
+        .result-label {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .result-value span {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
+
+        .driver-earnings {
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Settings Accordion */
+        .settings-toggle {
+            display: block;
+            text-align: center;
+            color: var(--text-muted);
+            margin: 1rem 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .settings-toggle:hover {
+            color: #fff;
+        }
+
+        .settings-toggle svg {
+            transition: transform 0.3s;
+        }
+
+        .settings-toggle.active svg {
+            transform: rotate(180deg);
+        }
+
+        .advanced-settings {
+            display: none;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+            animation: fadeIn 0.4s;
+        }
+
+        .advanced-settings.open {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-reset {
+            display: block;
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-reset:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .result-value {
+                font-size: 3rem;
+            }
+            .row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="container">
+        <h1>Uber 車資計算</h1>
+        <p class="subtitle">台灣地區・即時費率試算</p>
+
+        <div class="input-group" style="margin-bottom: 1.5rem;">
+            <label for="region">選擇地區</label>
+            <div class="input-wrapper">
+                <span class="input-icon">🌍</span>
+                <select id="region">
+                    <option value="taipei">北北基 (基本48, 每公里25, 每分鐘3.4)</option>
+                    <option value="taoyuan">桃竹苗 (基本45, 每公里25, 每分鐘3.2)</option>
+                    <option value="taichung">中彰投 (基本42, 每公里23, 每分鐘3.0)</option>
+                    <option value="south">南高屏 (基本40, 每公里22, 每分鐘2.8)</option>
+                    <option value="yilan">宜蘭 (基本50, 每公里25, 每分鐘3.5)</option>
+                </select>
+                <span style="position: absolute; right: 1rem; color: var(--text-muted); pointer-events: none;">▼</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label for="distance">行駛距離 (公里)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">📍</span>
+                    <input type="number" id="distance" placeholder="例如: 5.2" step="0.1" min="0">
+                </div>
+                <div class="quick-btns">
+                    <button type="button" class="btn-increment" data-target="distance" data-val="1">+1 km</button>
+                    <button type="button" class="btn-increment" data-target="distance" data-val="5">+5 km</button>
+                    <button type="button" class="btn-increment" data-target="distance" data-val="10">+10 km</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="time">預估時間 (分鐘)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">⏱️</span>
+                    <input type="number" id="time" placeholder="例如: 15" step="1" min="0">
+                </div>
+                <div class="quick-btns">
+                    <button type="button" class="btn-increment" data-target="time" data-val="1">+1 min</button>
+                    <button type="button" class="btn-increment" data-target="time" data-val="5">+5 min</button>
+                    <button type="button" class="btn-increment" data-target="time" data-val="10">+10 min</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toggle-container">
+            <div class="toggle-label">
+                <span>👑</span> Uber One 會員 (享95折)
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="uberOne">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="settings-toggle" id="settingsToggle">
+            進階費率設定
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+
+        <div class="advanced-settings" id="advancedSettings">
+            <div class="row">
+                <div class="input-group">
+                    <label for="baseFare">基本車資 (元)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">💵</span>
+                        <input type="number" id="baseFare" value="85" step="1">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="minFare">最低車資 (元)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🛡️</span>
+                        <input type="number" id="minFare" value="85" step="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group">
+                    <label for="perKm">每公里費率 (元)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🛣️</span>
+                        <input type="number" id="perKm" value="25" step="0.5">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="perMin">每分鐘費率 (元)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">⏳</span>
+                        <input type="number" id="perMin" value="2.5" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="surge">動態加成 (例如 1.2倍)</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">⚡</span>
+                    <input type="number" id="surge" value="1.0" step="0.1" min="1.0">
+                </div>
+            </div>
+        </div>
+
+        <div class="result-card">
+            <div class="result-label">預估總車資</div>
+            <div class="result-value">
+                <span>NT$</span> <span style="color:white; font-size: 1em; margin:0;" id="totalFare">0</span>
+            </div>
+            
+            <div class="driver-earnings">
+                司機實拿 (扣除25%): NT$ <span id="driverFare">0</span>
+            </div>
+
+            <div class="details">
+                <span id="detailDistance">里程費: $0</span>
+                <span id="detailTime">時間費: $0</span>
+            </div>
+        </div>
+
+        <button type="button" class="btn-reset" id="resetBtn">
+            🔄 清除歸零
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = [
+                'distance', 'time', 'uberOne', 
+                'baseFare', 'perKm', 'perMin', 'surge', 'minFare'
+            ];
+
+            const regionRates = {
+                'taipei': { baseFare: 48, perKm: 25, perMin: 3.4, minFare: 85 },
+                'taoyuan': { baseFare: 45, perKm: 25, perMin: 3.2, minFare: 85 },
+                'taichung': { baseFare: 42, perKm: 23, perMin: 3.0, minFare: 85 },
+                'south': { baseFare: 40, perKm: 22, perMin: 2.8, minFare: 85 },
+                'yilan': { baseFare: 50, perKm: 25, perMin: 3.5, minFare: 120 }
+            };
+
+            const elements = {};
+            inputs.forEach(id => {
+                elements[id] = document.getElementById(id);
+                // Listen to standard input changes
+                elements[id].addEventListener('input', calculateFare);
+            });
+
+            // Handle Region change
+            const regionSelect = document.getElementById('region');
+            regionSelect.addEventListener('change', (e) => {
+                const rates = regionRates[e.target.value];
+                elements.baseFare.value = rates.baseFare;
+                elements.perKm.value = rates.perKm;
+                elements.perMin.value = rates.perMin;
+                elements.minFare.value = rates.minFare;
+                calculateFare();
+            });
+
+            // Handle Quick Increment buttons
+            document.querySelectorAll('.btn-increment').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetId = e.target.getAttribute('data-target');
+                    const addVal = parseFloat(e.target.getAttribute('data-val'));
+                    const currentVal = parseFloat(elements[targetId].value) || 0;
+                    
+                    if (targetId === 'time') {
+                        elements[targetId].value = Math.floor(currentVal + addVal);
+                    } else {
+                        elements[targetId].value = (currentVal + addVal).toFixed(1);
+                    }
+                    calculateFare();
+                });
+            });
+
+            // Initialize default region values
+            regionSelect.dispatchEvent(new Event('change'));
+
+            // Handle Uber One Checkbox change explicitly
+            elements['uberOne'].addEventListener('change', calculateFare);
+
+            // Toggle Advanced Settings
+            const settingsToggle = document.getElementById('settingsToggle');
+            const advancedSettings = document.getElementById('advancedSettings');
+
+            settingsToggle.addEventListener('click', () => {
+                advancedSettings.classList.toggle('open');
+                settingsToggle.classList.toggle('active');
+            });
+
+            // Handle Reset Button
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                elements.distance.value = '';
+                elements.time.value = '';
+                elements.uberOne.checked = false;
+                elements.surge.value = '1.0';
+                
+                // Re-trigger region set to ensure base fares are defaulted correctly
+                regionSelect.dispatchEvent(new Event('change'));
+            });
+
+            function calculateFare() {
+                const distance = parseFloat(elements.distance.value) || 0;
+                const time = parseFloat(elements.time.value) || 0;
+                const baseFare = parseFloat(elements.baseFare.value) || 0;
+                const perKm = parseFloat(elements.perKm.value) || 0;
+                const perMin = parseFloat(elements.perMin.value) || 0;
+                const surge = parseFloat(elements.surge.value) || 1;
+                const minFare = parseFloat(elements.minFare.value) || 0;
+                const isUberOne = elements.uberOne.checked;
+
+                const distanceFare = distance * perKm;
+                const timeFare = time * perMin;
+
+                let subTotal = baseFare + distanceFare + timeFare;
+                subTotal = subTotal * surge;
+
+                // Apply min fare logic
+                let total = Math.max(subTotal, minFare);
+
+                // Default state when inputs are empty
+                if (distance === 0 && time === 0) {
+                   total = 0; 
+                } else {
+                    // Apply Uber One Discount (95折 = 5% off)
+                    if (isUberOne) {
+                        total = total * 0.95;
+                    }
+                }
+
+                // Round to nearest integer (traditional in Taiwan)
+                total = Math.round(total);
+
+                // Update UI with animation
+                let currentVal = parseInt(document.getElementById('totalFare').innerText.replace(/,/g, '')) || 0;
+                animateValue('totalFare', currentVal, total, 300);
+                
+                let currentDriverVal = parseInt(document.getElementById('driverFare').innerText.replace(/,/g, '')) || 0;
+                let driverTotal = Math.round(total * 0.75);
+                animateValue('driverFare', currentDriverVal, driverTotal, 300);
+
+                document.getElementById('detailDistance').innerText = `里程費: $${Math.round(distanceFare)}`;
+                document.getElementById('detailTime').innerText = `時間費: $${Math.round(timeFare)}`;
+            }
+
+            // Number animation function
+            function animateValue(id, start, end, duration) {
+                if (start === end) return;
+                const obj = document.getElementById(id);
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    obj.innerHTML = Math.floor(progress * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        obj.innerHTML = end;
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+        });
+    </script>
+</body>
+</html>
