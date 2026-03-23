@@ -494,9 +494,17 @@
             <label for="region">選擇地區</label>
             <div class="input-wrapper">
                 <select id="region">
-                    <option value="taipei">北北基 (基本48, 每公里25, 每分鐘3.4)</option>
-                    <option value="taoyuan">桃園 (基本59, 每公里25, 每分鐘1.7)</option>
-                    <option value="yilan">宜蘭 (基本92, 每公里20, 每分鐘1.2)</option>
+                    <option value="taipei">北北基 (基本48, 最低85, 每公里25, 每分鐘3.4)</option>
+                    <option value="taoyuan">桃園 (基本59, 最低90, 每公里25, 每分鐘1.7)</option>
+                    <option value="hsinchu">新竹 (基本75, 最低100, 每公里25, 每分鐘2.0)</option>
+                    <option value="miaoli">苗栗 (基本65, 最低100, 每公里25, 每分鐘2.5)</option>
+                    <option value="yilan">宜蘭 (基本92, 最低120, 每公里20, 每分鐘1.2)</option>
+                    <option value="taichung">台中 (基本56, 最低85, 每公里25, 每分鐘2.7)</option>
+                    <option value="changhua">彰化 (基本57, 最低85, 每公里24, 每分鐘2.0)</option>
+                    <option value="nantou">南投 (基本58, 最低100, 每公里25, 每分鐘1.0)</option>
+                    <option value="tainan">台南 (基本70, 最低85, 每公里25.5, 每分鐘0.6)</option>
+                    <option value="kaohsiung">高雄 (基本70, 最低85, 每公里25.6, 每分鐘0.6)</option>
+                    <option value="pingtung">屏東 (基本81, 最低100, 每公里25, 每分鐘1.0)</option>
                 </select>
                 <span style="position: absolute; right: 1rem; color: var(--text-muted); pointer-events: none;">▼</span>
             </div>
@@ -638,7 +646,15 @@
             const regionRates = {
                 'taipei': { baseFare: 48, perKm: 25, perMin: 3.4, minFare: 85 },
                 'taoyuan': { baseFare: 59, perKm: 25, perMin: 1.7, minFare: 90 },
-                'yilan': { baseFare: 92, perKm: 20, perMin: 1.2, minFare: 120 }
+                'hsinchu': { baseFare: 75, perKm: 25, perMin: 2.0, minFare: 100 },
+                'miaoli': { baseFare: 65, perKm: 25, perMin: 2.5, minFare: 100 },
+                'yilan': { baseFare: 92, perKm: 20, perMin: 1.2, minFare: 120 },
+                'taichung': { baseFare: 56, perKm: 25, perMin: 2.7, minFare: 85 },
+                'changhua': { baseFare: 57, perKm: 24, perMin: 2.0, minFare: 85 },
+                'nantou': { baseFare: 58, perKm: 25, perMin: 1.0, minFare: 100 },
+                'tainan': { baseFare: 70, perKm: 25.5, perMin: 0.6, minFare: 85 },
+                'kaohsiung': { baseFare: 70, perKm: 25.6, perMin: 0.6, minFare: 85 },
+                'pingtung': { baseFare: 81, perKm: 25, perMin: 1.0, minFare: 100 }
             };
 
             const elements = {};
