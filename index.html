@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uber 台灣車資計算機</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6077934577293506"
+        crossorigin="anonymous"></script>
     <style>
         :root {
             --primary: #000000;
@@ -250,12 +252,12 @@
             gap: 0.3rem;
             padding: 0.6rem 0.25rem;
             border-radius: 12px;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
             transition: background 0.2s;
         }
 
         .fare-col:hover {
-            background: rgba(255,255,255,0.07);
+            background: rgba(255, 255, 255, 0.07);
         }
 
         .fare-type-icon {
@@ -285,20 +287,36 @@
         }
 
         /* highlight the main (UberX) column */
-        .fare-col.main-type .fare-type-label { color: var(--secondary); }
-        .fare-col.main-type .fare-amount { font-size: 1.6rem; color: #60a5fa; }
+        .fare-col.main-type .fare-type-label {
+            color: var(--secondary);
+        }
+
+        .fare-col.main-type .fare-amount {
+            font-size: 1.6rem;
+            color: #60a5fa;
+        }
 
         /* selected vehicle type */
         .fare-col {
             cursor: pointer;
         }
+
         .fare-col.active {
             background: rgba(39, 110, 241, 0.18);
             outline: 1px solid rgba(39, 110, 241, 0.5);
         }
-        .fare-col.active .fare-type-label { color: #93c5fd; }
-        .fare-col.active .fare-amount { color: #93c5fd; }
-        .fare-col.main-type.active .fare-amount { color: #60a5fa; }
+
+        .fare-col.active .fare-type-label {
+            color: #93c5fd;
+        }
+
+        .fare-col.active .fare-amount {
+            color: #93c5fd;
+        }
+
+        .fare-col.main-type.active .fare-amount {
+            color: #60a5fa;
+        }
 
         .result-card {
             background: linear-gradient(135deg, rgba(39, 110, 241, 0.15), rgba(39, 110, 241, 0.05));
@@ -627,7 +645,8 @@
             </div>
         </div>
 
-        <div class="settings-toggle" id="settingsToggle" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+        <div class="settings-toggle" id="settingsToggle"
+            style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
             進階費率設定
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -688,61 +707,83 @@
             ];
 
             const regionRates = {
-                'taipei':    { baseFare: 48,  perKm: 25,   perMin: 3.4, minFare: 85,
-                               black:   { baseFare: 72, perKm: 37.5, perMin: 5.1, minFare: 128 },
-                               xl:      { baseFare: 62, perKm: 32.5, perMin: 4.4, minFare: 111 },
-                               comfort: { baseFare: 58, perKm: 30,   perMin: 4.1, minFare: 102 },
-                               ev:      { baseFare: 67, perKm: 35,   perMin: 4.8, minFare: 119 } },
-                'taoyuan':   { baseFare: 59,  perKm: 25,   perMin: 1.7, minFare: 90,
-                               black:   { baseFare: 89, perKm: 37.5, perMin: 2.6, minFare: 135 },
-                               xl:      { baseFare: 77, perKm: 32.5, perMin: 2.2, minFare: 117 },
-                               comfort: { baseFare: 71, perKm: 30,   perMin: 2.0, minFare: 108 },
-                               ev:      { baseFare: 83, perKm: 35,   perMin: 2.4, minFare: 126 } },
-                'hsinchu':   { baseFare: 75,  perKm: 25,   perMin: 2.0, minFare: 100,
-                               black:   { baseFare: 113, perKm: 37.5, perMin: 3.0, minFare: 150 },
-                               xl:      { baseFare: 98,  perKm: 32.5, perMin: 2.6, minFare: 130 },
-                               comfort: { baseFare: 90,  perKm: 30,   perMin: 2.4, minFare: 120 },
-                               ev:      { baseFare: 105, perKm: 35,   perMin: 2.8, minFare: 140 } },
-                'miaoli':    { baseFare: 65,  perKm: 25,   perMin: 2.5, minFare: 100,
-                               black:   { baseFare: 97.5, perKm: 37.5, perMin: 3.8, minFare: 150 },
-                               xl:      { baseFare: 84.5, perKm: 32.5, perMin: 3.3, minFare: 130 },
-                               comfort: { baseFare: 78,   perKm: 30,   perMin: 3.1, minFare: 120 },
-                               ev:      { baseFare: 91,   perKm: 35,   perMin: 3.5, minFare: 140 } },
-                'yilan':     { baseFare: 92,  perKm: 20,   perMin: 1.2, minFare: 120,
-                               black:   { baseFare: 138, perKm: 30,   perMin: 1.8, minFare: 180 },
-                               xl:      { baseFare: 120, perKm: 26,   perMin: 1.6, minFare: 156 },
-                               comfort: { baseFare: 110, perKm: 24,   perMin: 1.4, minFare: 144 },
-                               ev:      { baseFare: 129, perKm: 28,   perMin: 1.7, minFare: 168 } },
-                'taichung':  { baseFare: 56,  perKm: 25,   perMin: 2.7, minFare: 85,
-                               black:   { baseFare: 87, perKm: 37.5, perMin: 4.1, minFare: 128 },
-                               xl:      { baseFare: 75, perKm: 32.5, perMin: 3.5, minFare: 111 },
-                               comfort: { baseFare: 70, perKm: 30,   perMin: 3.2, minFare: 102 },
-                               ev:      { baseFare: 81, perKm: 35,   perMin: 3.8, minFare: 119 } },
-                'changhua':  { baseFare: 57,  perKm: 24,   perMin: 2.0, minFare: 85,
-                               black:   { baseFare: 86, perKm: 36, perMin: 3.0, minFare: 128 },
-                               xl:      { baseFare: 74, perKm: 31, perMin: 2.6, minFare: 111 },
-                               comfort: { baseFare: 68, perKm: 29, perMin: 2.4, minFare: 102 },
-                               ev:      { baseFare: 80, perKm: 34, perMin: 2.8, minFare: 119 } },
-                'nantou':    { baseFare: 58,  perKm: 25,   perMin: 1.0, minFare: 100,
-                               black:   { baseFare: 87, perKm: 37.5, perMin: 1.5, minFare: 150 },
-                               xl:      { baseFare: 75, perKm: 32.5, perMin: 1.3, minFare: 130 },
-                               comfort: { baseFare: 70, perKm: 30,   perMin: 1.2, minFare: 120 },
-                               ev:      { baseFare: 81, perKm: 35,   perMin: 1.4, minFare: 140 } },
-                'tainan':    { baseFare: 70,  perKm: 25.5, perMin: 0.6, minFare: 85,
-                               black:   null,
-                               xl:      { baseFare: 91, perKm: 33.3, perMin: 0.8,  minFare: 111 },
-                               comfort: { baseFare: 84, perKm: 30.7, perMin: 0.7,  minFare: 102 },
-                               ev:      { baseFare: 98, perKm: 35.8, perMin: 0.84, minFare: 119 } },
-                'kaohsiung': { baseFare: 70,  perKm: 25.6, perMin: 0.6, minFare: 85,
-                               black:   null,
-                               xl:      { baseFare: 91, perKm: 33.3, perMin: 0.8,  minFare: 111 },
-                               comfort: { baseFare: 85, perKm: 30.7, perMin: 0.7,  minFare: 102 },
-                               ev:      { baseFare: 98, perKm: 35.9, perMin: 0.8,  minFare: 119 } },
-                'pingtung':  { baseFare: 81,  perKm: 25,   perMin: 1.0, minFare: 100,
-                               black:   { baseFare: 122, perKm: 37.5, perMin: 1.5, minFare: 150 },
-                               xl:      { baseFare: 106, perKm: 32.5, perMin: 1.3, minFare: 130 },
-                               comfort: { baseFare: 97,  perKm: 30,   perMin: 1.2, minFare: 120 },
-                               ev:      { baseFare: 113, perKm: 35,   perMin: 1.4, minFare: 140 } }
+                'taipei': {
+                    baseFare: 48, perKm: 25, perMin: 3.4, minFare: 85,
+                    black: { baseFare: 72, perKm: 37.5, perMin: 5.1, minFare: 128 },
+                    xl: { baseFare: 62, perKm: 32.5, perMin: 4.4, minFare: 111 },
+                    comfort: { baseFare: 58, perKm: 30, perMin: 4.1, minFare: 102 },
+                    ev: { baseFare: 67, perKm: 35, perMin: 4.8, minFare: 119 }
+                },
+                'taoyuan': {
+                    baseFare: 59, perKm: 25, perMin: 1.7, minFare: 90,
+                    black: { baseFare: 89, perKm: 37.5, perMin: 2.6, minFare: 135 },
+                    xl: { baseFare: 77, perKm: 32.5, perMin: 2.2, minFare: 117 },
+                    comfort: { baseFare: 71, perKm: 30, perMin: 2.0, minFare: 108 },
+                    ev: { baseFare: 83, perKm: 35, perMin: 2.4, minFare: 126 }
+                },
+                'hsinchu': {
+                    baseFare: 75, perKm: 25, perMin: 2.0, minFare: 100,
+                    black: { baseFare: 113, perKm: 37.5, perMin: 3.0, minFare: 150 },
+                    xl: { baseFare: 98, perKm: 32.5, perMin: 2.6, minFare: 130 },
+                    comfort: { baseFare: 90, perKm: 30, perMin: 2.4, minFare: 120 },
+                    ev: { baseFare: 105, perKm: 35, perMin: 2.8, minFare: 140 }
+                },
+                'miaoli': {
+                    baseFare: 65, perKm: 25, perMin: 2.5, minFare: 100,
+                    black: { baseFare: 97.5, perKm: 37.5, perMin: 3.8, minFare: 150 },
+                    xl: { baseFare: 84.5, perKm: 32.5, perMin: 3.3, minFare: 130 },
+                    comfort: { baseFare: 78, perKm: 30, perMin: 3.1, minFare: 120 },
+                    ev: { baseFare: 91, perKm: 35, perMin: 3.5, minFare: 140 }
+                },
+                'yilan': {
+                    baseFare: 92, perKm: 20, perMin: 1.2, minFare: 120,
+                    black: { baseFare: 138, perKm: 30, perMin: 1.8, minFare: 180 },
+                    xl: { baseFare: 120, perKm: 26, perMin: 1.6, minFare: 156 },
+                    comfort: { baseFare: 110, perKm: 24, perMin: 1.4, minFare: 144 },
+                    ev: { baseFare: 129, perKm: 28, perMin: 1.7, minFare: 168 }
+                },
+                'taichung': {
+                    baseFare: 56, perKm: 25, perMin: 2.7, minFare: 85,
+                    black: { baseFare: 87, perKm: 37.5, perMin: 4.1, minFare: 128 },
+                    xl: { baseFare: 75, perKm: 32.5, perMin: 3.5, minFare: 111 },
+                    comfort: { baseFare: 70, perKm: 30, perMin: 3.2, minFare: 102 },
+                    ev: { baseFare: 81, perKm: 35, perMin: 3.8, minFare: 119 }
+                },
+                'changhua': {
+                    baseFare: 57, perKm: 24, perMin: 2.0, minFare: 85,
+                    black: { baseFare: 86, perKm: 36, perMin: 3.0, minFare: 128 },
+                    xl: { baseFare: 74, perKm: 31, perMin: 2.6, minFare: 111 },
+                    comfort: { baseFare: 68, perKm: 29, perMin: 2.4, minFare: 102 },
+                    ev: { baseFare: 80, perKm: 34, perMin: 2.8, minFare: 119 }
+                },
+                'nantou': {
+                    baseFare: 58, perKm: 25, perMin: 1.0, minFare: 100,
+                    black: { baseFare: 87, perKm: 37.5, perMin: 1.5, minFare: 150 },
+                    xl: { baseFare: 75, perKm: 32.5, perMin: 1.3, minFare: 130 },
+                    comfort: { baseFare: 70, perKm: 30, perMin: 1.2, minFare: 120 },
+                    ev: { baseFare: 81, perKm: 35, perMin: 1.4, minFare: 140 }
+                },
+                'tainan': {
+                    baseFare: 70, perKm: 25.5, perMin: 0.6, minFare: 85,
+                    black: null,
+                    xl: { baseFare: 91, perKm: 33.3, perMin: 0.8, minFare: 111 },
+                    comfort: { baseFare: 84, perKm: 30.7, perMin: 0.7, minFare: 102 },
+                    ev: { baseFare: 98, perKm: 35.8, perMin: 0.84, minFare: 119 }
+                },
+                'kaohsiung': {
+                    baseFare: 70, perKm: 25.6, perMin: 0.6, minFare: 85,
+                    black: null,
+                    xl: { baseFare: 91, perKm: 33.3, perMin: 0.8, minFare: 111 },
+                    comfort: { baseFare: 85, perKm: 30.7, perMin: 0.7, minFare: 102 },
+                    ev: { baseFare: 98, perKm: 35.9, perMin: 0.8, minFare: 119 }
+                },
+                'pingtung': {
+                    baseFare: 81, perKm: 25, perMin: 1.0, minFare: 100,
+                    black: { baseFare: 122, perKm: 37.5, perMin: 1.5, minFare: 150 },
+                    xl: { baseFare: 106, perKm: 32.5, perMin: 1.3, minFare: 130 },
+                    comfort: { baseFare: 97, perKm: 30, perMin: 1.2, minFare: 120 },
+                    ev: { baseFare: 113, perKm: 35, perMin: 1.4, minFare: 140 }
+                }
             };
 
             const elements = {};
@@ -840,10 +881,10 @@
                 // Update other vehicle type fares
                 const region = regionRates[document.getElementById('region').value];
                 const types = [
-                    { id: 'fareBlack',   key: 'black'   },
-                    { id: 'fareXL',      key: 'xl'      },
+                    { id: 'fareBlack', key: 'black' },
+                    { id: 'fareXL', key: 'xl' },
                     { id: 'fareComfort', key: 'comfort' },
-                    { id: 'fareEV',      key: 'ev'      },
+                    { id: 'fareEV', key: 'ev' },
                 ];
 
                 types.forEach(({ id, key }) => {
