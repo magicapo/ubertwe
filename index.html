@@ -288,6 +288,18 @@
         .fare-col.main-type .fare-type-label { color: var(--secondary); }
         .fare-col.main-type .fare-amount { font-size: 1.6rem; color: #60a5fa; }
 
+        /* selected vehicle type */
+        .fare-col {
+            cursor: pointer;
+        }
+        .fare-col.active {
+            background: rgba(39, 110, 241, 0.18);
+            outline: 1px solid rgba(39, 110, 241, 0.5);
+        }
+        .fare-col.active .fare-type-label { color: #93c5fd; }
+        .fare-col.active .fare-amount { color: #93c5fd; }
+        .fare-col.main-type.active .fare-amount { color: #60a5fa; }
+
         .result-card {
             background: linear-gradient(135deg, rgba(39, 110, 241, 0.15), rgba(39, 110, 241, 0.05));
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -562,9 +574,9 @@
 
         <div class="result-card">
             <div class="fare-grid">
-                <div class="fare-col main-type" title="經濟">
+                <div class="fare-col main-type" title="菁英">
                     <div class="fare-type-icon">🚗</div>
-                    <div class="fare-type-label">經濟</div>
+                    <div class="fare-type-label">菁英</div>
                     <div class="fare-currency">NT$</div>
                     <div class="fare-amount" id="totalFare">0</div>
                 </div>
@@ -595,7 +607,7 @@
             </div>
 
             <div class="driver-earnings">
-                司機實拿 (扣除25%): NT$ <span id="driverFare">0</span>
+                <span id="driverFareLabel">菁英</span> 司機實拿 (扣除25%): NT$ <span id="driverFare">0</span>
             </div>
 
             <div class="details">
@@ -811,9 +823,6 @@
                 let currentVal = parseInt(document.getElementById('totalFare').innerText.replace(/,/g, '')) || 0;
                 animateValue('totalFare', currentVal, total, 300);
 
-                let currentDriverVal = parseInt(document.getElementById('driverFare').innerText.replace(/,/g, '')) || 0;
-                animateValue('driverFare', currentDriverVal, Math.round(total * 0.75), 300);
-
                 document.getElementById('detailDistance').innerText = `里程費: $${Math.round(distanceFare)}`;
                 document.getElementById('detailTime').innerText = `時間費: $${Math.round(timeFare)}`;
 
@@ -837,7 +846,50 @@
                         animateValue(id, prev, val, 300);
                     }
                 });
+
+                // Recalculate driver fare based on currently selected vehicle type
+                fareValues['totalFare'] = total;
+                types.forEach(({ id, key }) => {
+                    const typeRates = region[key];
+                    fareValues[id] = (typeRates === null) ? null
+                        : calcTypeTotal(typeRates, distance, time, surge, extraFee, isEmpty);
+                });
+                updateDriverFare();
             }
+
+            // Track selected vehicle type
+            let selectedFareId = 'totalFare';
+            let selectedFareLabel = '菁英';
+
+            // Cache of latest computed fares for each vehicle type
+            const fareValues = { totalFare: 0, fareBlack: null, fareXL: 0, fareComfort: 0, fareEV: 0 };
+
+            function updateDriverFare() {
+                const fareVal = fareValues[selectedFareId];
+                if (fareVal === null || fareVal === undefined) return;
+                const currentDriverVal = parseInt(document.getElementById('driverFare').innerText.replace(/,/g, '')) || 0;
+                animateValue('driverFare', currentDriverVal, Math.round(fareVal * 0.75), 300);
+                document.getElementById('driverFareLabel').innerText = selectedFareLabel;
+            }
+
+            // Click handlers for each fare column
+            document.querySelectorAll('.fare-col').forEach(col => {
+                col.addEventListener('click', () => {
+                    // Skip unavailable columns (showing –)
+                    const fareEl = col.querySelector('.fare-amount');
+                    if (!fareEl || fareEl.innerText.trim() === '–') return;
+
+                    document.querySelectorAll('.fare-col').forEach(c => c.classList.remove('active'));
+                    col.classList.add('active');
+
+                    selectedFareId = fareEl.id;
+                    selectedFareLabel = col.querySelector('.fare-type-label').innerText;
+                    updateDriverFare();
+                });
+            });
+
+            // Set default active column
+            document.querySelector('.fare-col.main-type').classList.add('active');
 
             // Number animation function
             function animateValue(id, start, end, duration) {
